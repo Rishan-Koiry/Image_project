@@ -1,0 +1,598 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    {% load static %}
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Image Gallery</title>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+    <style>
+      :root {
+        --bg-primary: #121212;
+        --bg-secondary: #1e1e1e;
+        --bg-card: #252525;
+        --color-primary: #ffffff;
+        --color-secondary: #b3b3b3;
+        --accent-primary: #7c4dff;
+        --accent-secondary: #651fff;
+        --danger: #ff5252;
+        --danger-hover: #ff1744;
+        --success: #00e676;
+        --info: #00b0ff;
+        --border-radius: 8px;
+        --shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
+        --transition: all 0.3s ease;
+      }
+
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: "Segoe UI", Roboto, -apple-system, BlinkMacSystemFont,
+          sans-serif;
+        background: var(--bg-primary);
+        color: var(--color-primary);
+        margin: 0;
+        padding: 0;
+        line-height: 1.6;
+        min-height: 100vh;
+      }
+
+      .container {
+        width: 90%;
+        max-width: 1400px;
+        margin: 0 auto;
+        padding: 2rem 0;
+      }
+
+      header {
+        background-color: var(--bg-secondary);
+        padding: 1.5rem 0;
+        margin-bottom: 2rem;
+        box-shadow: var(--shadow);
+      }
+
+      header .container {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+
+      h1 {
+        font-size: 2.2rem;
+        font-weight: 700;
+        color: var(--color-primary);
+        margin: 0;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+      }
+
+      h1 i {
+        color: var(--accent-primary);
+      }
+
+      /* Upload Form */
+      .upload-section {
+        background: var(--bg-secondary);
+        border-radius: var(--border-radius);
+        padding: 2rem;
+        margin-bottom: 3rem;
+        box-shadow: var(--shadow);
+        position: relative;
+        overflow: hidden;
+      }
+
+      .upload-section::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        height: 4px;
+        width: 100%;
+        background: linear-gradient(
+          90deg,
+          var(--accent-primary),
+          var(--accent-secondary)
+        );
+      }
+
+      .form-title {
+        font-size: 1.5rem;
+        margin-bottom: 1.5rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+      }
+
+      .form-group {
+        margin-bottom: 1.2rem;
+      }
+
+      .form-group label {
+        display: block;
+        margin-bottom: 0.5rem;
+        font-weight: 500;
+        color: var(--color-secondary);
+      }
+
+      .form-control {
+        width: 100%;
+        padding: 0.8rem 1rem;
+        font-size: 1rem;
+        background: var(--bg-primary);
+        border: 1px solid #333;
+        border-radius: var(--border-radius);
+        color: var(--color-primary);
+        transition: var(--transition);
+      }
+
+      .form-control:focus {
+        outline: none;
+        border-color: var(--accent-primary);
+        box-shadow: 0 0 0 2px rgba(124, 77, 255, 0.2);
+      }
+
+      textarea.form-control {
+        resize: vertical;
+        min-height: 100px;
+      }
+
+      .file-input-wrapper {
+        position: relative;
+        margin-top: 1rem;
+      }
+
+      .file-input-label {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        background: var(--bg-primary);
+        border: 2px dashed #444;
+        border-radius: var(--border-radius);
+        padding: 2rem 1rem;
+        text-align: center;
+        cursor: pointer;
+        transition: var(--transition);
+      }
+
+      .file-input-label:hover {
+        border-color: var(--accent-primary);
+      }
+
+      .file-input-label i {
+        font-size: 2rem;
+        color: var(--accent-primary);
+      }
+
+      .file-input-text {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+      }
+
+      .file-name {
+        margin-top: 0.5rem;
+        font-size: 0.9rem;
+        color: var(--color-secondary);
+      }
+
+      input[type="file"] {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        opacity: 0;
+        cursor: pointer;
+      }
+
+      .btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        padding: 0.8rem 1.5rem;
+        font-size: 1rem;
+        font-weight: 500;
+        border-radius: var(--border-radius);
+        border: none;
+        cursor: pointer;
+        transition: var(--transition);
+        text-decoration: none;
+      }
+
+      .btn-primary {
+        background: var(--accent-primary);
+        color: white;
+      }
+
+      .btn-primary:hover {
+        background: var(--accent-secondary);
+        transform: translateY(-2px);
+      }
+
+      .btn-danger {
+        background: var(--danger);
+        color: white;
+      }
+
+      .btn-danger:hover {
+        background: var(--danger-hover);
+        transform: translateY(-2px);
+      }
+
+      .btn-info {
+        background: var(--info);
+        color: white;
+      }
+
+      .btn-info:hover {
+        background: #0091ea;
+        transform: translateY(-2px);
+      }
+
+      /* Gallery */
+      .gallery-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1.5rem;
+      }
+
+      .gallery-title {
+        font-size: 1.8rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+      }
+
+      .gallery {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+        gap: 1.5rem;
+      }
+
+      .card {
+        background: var(--bg-card);
+        border-radius: var(--border-radius);
+        overflow: hidden;
+        box-shadow: var(--shadow);
+        transition: var(--transition);
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+      }
+
+      .card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+      }
+
+      .card-img-container {
+        position: relative;
+        padding-top: 70%;
+        overflow: hidden;
+        background: #1a1a1a;
+      }
+
+      .card-img-container img {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: var(--transition);
+      }
+
+      .card:hover .card-img-container img {
+        transform: scale(1.05);
+      }
+
+      .card-body {
+        padding: 1.5rem;
+        flex-grow: 1;
+        display: flex;
+        flex-direction: column;
+      }
+
+      .card-title {
+        font-size: 1.25rem;
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+        color: var(--color-primary);
+      }
+
+      .card-text {
+        color: var(--color-secondary);
+        margin-bottom: 1.5rem;
+        flex-grow: 1;
+      }
+
+      .card-actions {
+        display: flex;
+        gap: 0.5rem;
+        margin-top: auto;
+      }
+
+      .card-actions .btn {
+        flex: 1;
+        padding: 0.6rem;
+      }
+
+      /* Empty state */
+      .empty-state {
+        text-align: center;
+        padding: 3rem;
+        background: var(--bg-secondary);
+        border-radius: var(--border-radius);
+      }
+
+      .empty-state i {
+        font-size: 4rem;
+        color: var(--accent-primary);
+        margin-bottom: 1.5rem;
+        opacity: 0.7;
+      }
+
+      .empty-state h3 {
+        font-size: 1.5rem;
+        margin-bottom: 1rem;
+      }
+
+      .empty-state p {
+        color: var(--color-secondary);
+        max-width: 500px;
+        margin: 0 auto 1.5rem;
+      }
+
+      /* Responsive adjustments */
+      @media (max-width: 768px) {
+        .container {
+          width: 95%;
+          padding: 1rem 0;
+        }
+
+        header .container {
+          flex-direction: column;
+          text-align: center;
+        }
+
+        h1 {
+          margin-bottom: 1rem;
+        }
+
+        .gallery {
+          grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+        }
+      }
+
+      @media (max-width: 480px) {
+        .gallery {
+          grid-template-columns: 1fr;
+        }
+
+        .btn {
+          padding: 0.7rem 1rem;
+        }
+
+        .card-actions {
+          flex-direction: column;
+        }
+      }
+
+      /* Animation for file upload */
+      @keyframes pulse {
+        0% {
+          box-shadow: 0 0 0 0 rgba(124, 77, 255, 0.4);
+        }
+        70% {
+          box-shadow: 0 0 0 10px rgba(124, 77, 255, 0);
+        }
+        100% {
+          box-shadow: 0 0 0 0 rgba(124, 77, 255, 0);
+        }
+      }
+
+      .file-input-label:focus-within {
+        animation: pulse 1.5s infinite;
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Header -->
+    <header>
+      <div class="container">
+        <h1><i class="fas fa-images"></i> Image Gallery</h1>
+      </div>
+    </header>
+
+    <div class="container">
+      <!-- Upload Form -->
+      <section class="upload-section">
+        <h2 class="form-title">
+          <i class="fas fa-cloud-upload-alt"></i> Upload New Image
+        </h2>
+        <form method="POST" enctype="multipart/form-data" id="upload-form">
+          {% csrf_token %}
+
+          <div class="form-group">
+            <label for="title">Title</label>
+            <input
+              type="text"
+              class="form-control"
+              id="title"
+              name="title"
+              placeholder="Enter image title"
+              required
+            />
+          </div>
+
+          <div class="form-group">
+            <label for="description">Description (optional)</label>
+            <textarea
+              class="form-control"
+              id="description"
+              name="description"
+              placeholder="Describe your image..."
+            ></textarea>
+          </div>
+
+          <div class="form-group">
+            <label>Image</label>
+            <div class="file-input-wrapper">
+              <label class="file-input-label">
+                <i class="fas fa-file-image"></i>
+                <div class="file-input-text">
+                  <span>Drag & drop or click to select file</span>
+                  <span class="file-name" id="file-name">No file selected</span>
+                </div>
+                <input
+                  type="file"
+                  name="image"
+                  id="image-input"
+                  accept="image/*"
+                  required
+                />
+              </label>
+            </div>
+          </div>
+
+          <button type="submit" class="btn btn-primary">
+            <i class="fas fa-upload"></i> Upload Image
+          </button>
+        </form>
+      </section>
+
+      <!-- Gallery Section -->
+      <section class="gallery-section">
+        <div class="gallery-header">
+          <h2 class="gallery-title"><i class="fas fa-th"></i> My Gallery</h2>
+        </div>
+
+        <div class="gallery">
+          {% for image in images %}
+          <div class="card">
+            <div class="card-img-container">
+              <img src="{{ image.image.url }}" alt="{{ image.title }}" />
+            </div>
+            <div class="card-body">
+              <h3 class="card-title">{{ image.title }}</h3>
+              <p class="card-text">{{ image.description }}</p>
+              <div class="card-actions">
+                <a
+                  href="{% url 'image_detail' image.id %}"
+                  class="btn btn-info"
+                >
+                  <i class="fas fa-eye"></i> View
+                </a>
+                <form
+                  method="POST"
+                  action="{% url 'delete_image' image.id %}"
+                  class="delete-form"
+                >
+                  {% csrf_token %}
+                  <button type="submit" class="btn btn-danger">
+                    <i class="fas fa-trash-alt"></i> Delete
+                  </button>
+                </form>
+              </div>
+            </div>
+          </div>
+          {% empty %}
+          <div class="empty-state" style="grid-column: 1 / -1">
+            <i class="fas fa-image"></i>
+            <h3>No images yet</h3>
+            <p>
+              Your uploaded images will appear here. Start by uploading your
+              first image above!
+            </p>
+          </div>
+          {% endfor %}
+        </div>
+      </section>
+    </div>
+
+    <script>
+      // Enhanced file input handling with visual feedback
+      document
+        .getElementById("image-input")
+        .addEventListener("change", function () {
+          if (this.files[0]) {
+            const fileName = this.files[0].name;
+            const fileLabel = document.getElementById("file-name");
+            fileLabel.textContent = fileName;
+            fileLabel.style.color = "var(--accent-primary)";
+
+            const label = document.querySelector(".file-input-label");
+            label.style.borderColor = "var(--accent-primary)";
+            label.style.borderStyle = "solid";
+            label.style.boxShadow = "0 0 8px rgba(124, 77, 255, 0.4)";
+
+            // Animate the uploaded filename
+            fileLabel.style.animation = "pulse 1.5s 1";
+          }
+        });
+
+      // Custom styled confirmation dialog for image deletion
+      document.querySelectorAll(".delete-form").forEach((form) => {
+        form.addEventListener("submit", function (e) {
+          e.preventDefault();
+
+          // Create custom modal
+          const modal = document.createElement("div");
+          modal.style.position = "fixed";
+          modal.style.top = "0";
+          modal.style.left = "0";
+          modal.style.width = "100%";
+          modal.style.height = "100%";
+          modal.style.backgroundColor = "rgba(0,0,0,0.8)";
+          modal.style.display = "flex";
+          modal.style.alignItems = "center";
+          modal.style.justifyContent = "center";
+          modal.style.zIndex = "9999";
+
+          const dialog = document.createElement("div");
+          dialog.style.backgroundColor = "var(--bg-secondary)";
+          dialog.style.borderRadius = "var(--border-radius)";
+          dialog.style.padding = "2rem";
+          dialog.style.maxWidth = "400px";
+          dialog.style.textAlign = "center";
+          dialog.style.boxShadow = "var(--shadow)";
+          dialog.innerHTML = `
+            <i class="fas fa-exclamation-triangle" style="font-size: 3rem; color: var(--danger); margin-bottom: 1rem;"></i>
+            <h3 style="margin-bottom: 1rem;">Delete Image?</h3>
+            <p style="margin-bottom: 1.5rem; color: var(--color-secondary);">If you want to delete the image then you need to Click one delete or cancel to exit</p>
+            <div style="display: flex; gap: 1rem; justify-content: center;">
+              <button id="cancel-delete" class="btn" style="background: #444; color: white;">Cancel</button>
+              <button id="confirm-delete" class="btn btn-danger">Delete</button>
+            </div>
+          `;
+
+          modal.appendChild(dialog);
+          document.body.appendChild(modal);
+
+          document
+            .getElementById("cancel-delete")
+            .addEventListener("click", function () {
+              document.body.removeChild(modal);
+            });
+
+          document
+            .getElementById("confirm-delete")
+            .addEventListener("click", function () {
+              form.submit();
+            });
+        });
+      });
+    </script>
+  </body>
+</html>

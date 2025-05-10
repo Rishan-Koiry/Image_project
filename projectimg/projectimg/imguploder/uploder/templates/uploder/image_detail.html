@@ -1,0 +1,767 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    {% load static %}
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{{ image.title }} | Image Gallery</title>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+    <style>
+      :root {
+        --bg-primary: #121212;
+        --bg-secondary: #1e1e1e;
+        --bg-card: #252525;
+        --color-primary: #ffffff;
+        --color-secondary: #b3b3b3;
+        --accent-primary: #7c4dff;
+        --accent-secondary: #651fff;
+        --danger: #ff5252;
+        --danger-hover: #ff1744;
+        --success: #00e676;
+        --info: #00b0ff;
+        --border-radius: 8px;
+        --shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
+        --transition: all 0.3s ease;
+      }
+
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: "Segoe UI", Roboto, -apple-system, BlinkMacSystemFont,
+          sans-serif;
+        background: var(--bg-primary);
+        color: var(--color-primary);
+        margin: 0;
+        padding: 0;
+        line-height: 1.6;
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+      }
+
+      .container {
+        width: 90%;
+        max-width: 1400px;
+        margin: 0 auto;
+        padding: 2rem 0;
+        flex-grow: 1;
+        display: flex;
+        flex-direction: column;
+      }
+
+      header {
+        background-color: var(--bg-secondary);
+        padding: 1.5rem 0;
+        margin-bottom: 2rem;
+        box-shadow: var(--shadow);
+        position: relative;
+      }
+
+      header .container {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0 2rem;
+      }
+
+      .header-title {
+        font-size: 1.5rem;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+      }
+
+      .header-title i {
+        color: var(--accent-primary);
+      }
+
+      .breadcrumb {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        color: var(--color-secondary);
+        font-size: 0.9rem;
+      }
+
+      .breadcrumb a {
+        color: var(--color-secondary);
+        text-decoration: none;
+        transition: var(--transition);
+      }
+
+      .breadcrumb a:hover {
+        color: var(--accent-primary);
+      }
+
+      .breadcrumb i {
+        font-size: 0.8rem;
+      }
+
+      .breadcrumb .current {
+        color: var(--accent-primary);
+        font-weight: 500;
+      }
+
+      /* Image detail section */
+      .detail-section {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 2rem;
+        margin-bottom: 2rem;
+      }
+
+      @media (min-width: 992px) {
+        .detail-section {
+          grid-template-columns: 3fr 2fr;
+        }
+      }
+
+      .image-container {
+        background-color: var(--bg-secondary);
+        border-radius: var(--border-radius);
+        overflow: hidden;
+        box-shadow: var(--shadow);
+        position: relative;
+      }
+
+      .image-wrapper {
+        width: 100%;
+        position: relative;
+        overflow: hidden;
+        padding-top: 75%; /* 4:3 aspect ratio by default */
+      }
+
+      .image-wrapper img {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+        transition: transform 0.5s ease;
+      }
+
+      .image-wrapper:hover img {
+        transform: scale(1.02);
+      }
+
+      .image-actions {
+        position: absolute;
+        bottom: 1rem;
+        right: 1rem;
+        display: flex;
+        gap: 0.5rem;
+        z-index: 10;
+      }
+
+      .action-btn {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background-color: rgba(0, 0, 0, 0.7);
+        color: white;
+        border: none;
+        cursor: pointer;
+        transition: var(--transition);
+      }
+
+      .action-btn:hover {
+        background-color: var(--accent-primary);
+        transform: translateY(-3px);
+      }
+
+      .image-info {
+        background-color: var(--bg-secondary);
+        border-radius: var(--border-radius);
+        padding: 2rem;
+        box-shadow: var(--shadow);
+        display: flex;
+        flex-direction: column;
+      }
+
+      .image-title {
+        font-size: 2rem;
+        font-weight: 700;
+        margin-bottom: 1rem;
+        color: var(--color-primary);
+        position: relative;
+        padding-bottom: 1rem;
+      }
+
+      .image-title::after {
+        content: "";
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        height: 3px;
+        width: 50px;
+        background: var(--accent-primary);
+        border-radius: 2px;
+      }
+
+      .image-meta {
+        margin-bottom: 1.5rem;
+        color: var(--color-secondary);
+        font-size: 0.9rem;
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+      }
+
+      .meta-item {
+        display: flex;
+        align-items: center;
+        gap: 0.3rem;
+      }
+
+      .image-description {
+        color: var(--color-secondary);
+        font-size: 1.1rem;
+        line-height: 1.7;
+        margin-bottom: 2rem;
+        flex-grow: 1;
+      }
+
+      .image-description:empty::before {
+        content: "No description provided";
+        font-style: italic;
+        opacity: 0.6;
+      }
+
+      .tag-container {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+        margin-top: auto;
+        margin-bottom: 1.5rem;
+      }
+
+      .tag {
+        background-color: var(--bg-card);
+        color: var(--color-secondary);
+        padding: 0.3rem 0.8rem;
+        border-radius: 20px;
+        font-size: 0.85rem;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.3rem;
+      }
+
+      .tag i {
+        color: var(--accent-primary);
+        font-size: 0.8rem;
+      }
+
+      .action-buttons {
+        display: flex;
+        gap: 1rem;
+        margin-top: auto;
+      }
+
+      .btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        padding: 0.8rem 1.5rem;
+        font-size: 1rem;
+        font-weight: 500;
+        border-radius: var(--border-radius);
+        border: none;
+        cursor: pointer;
+        transition: var(--transition);
+        text-decoration: none;
+      }
+
+      .btn-primary {
+        background: var(--accent-primary);
+        color: white;
+      }
+
+      .btn-primary:hover {
+        background: var(--accent-secondary);
+        transform: translateY(-2px);
+      }
+
+      .btn-outline {
+        background: transparent;
+        color: var(--color-primary);
+        border: 1px solid var(--color-secondary);
+      }
+
+      .btn-outline:hover {
+        border-color: var(--accent-primary);
+        color: var(--accent-primary);
+        transform: translateY(-2px);
+      }
+
+      .btn-danger {
+        background: var(--danger);
+        color: white;
+      }
+
+      .btn-danger:hover {
+        background: var(--danger-hover);
+        transform: translateY(-2px);
+      }
+
+      /* Related images section */
+      .related-section {
+        margin-top: 3rem;
+      }
+
+      .section-title {
+        font-size: 1.5rem;
+        margin-bottom: 1.5rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+      }
+
+      .section-title i {
+        color: var(--accent-primary);
+      }
+
+      .related-images {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+        gap: 1rem;
+      }
+
+      .related-card {
+        background: var(--bg-secondary);
+        border-radius: var(--border-radius);
+        overflow: hidden;
+        box-shadow: var(--shadow);
+        transition: var(--transition);
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+      }
+
+      .related-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+      }
+
+      .related-img-container {
+        position: relative;
+        padding-top: 75%;
+        overflow: hidden;
+      }
+
+      .related-img-container img {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: var(--transition);
+      }
+
+      .related-card:hover .related-img-container img {
+        transform: scale(1.1);
+      }
+
+      .related-card-body {
+        padding: 1rem;
+      }
+
+      .related-card-title {
+        font-size: 1rem;
+        font-weight: 500;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+
+      /* Footer */
+      footer {
+        background-color: var(--bg-secondary);
+        padding: 1.5rem 0;
+        margin-top: auto;
+        text-align: center;
+        color: var(--color-secondary);
+        font-size: 0.9rem;
+      }
+
+      /* Animations */
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+          transform: translateY(20px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      .detail-section,
+      .related-section {
+        animation: fadeIn 0.6s ease;
+      }
+
+      /* Fullscreen view */
+      .fullscreen-view {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.9);
+        z-index: 100;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.3s ease;
+      }
+
+      .fullscreen-view.active {
+        opacity: 1;
+        pointer-events: all;
+      }
+
+      .fullscreen-image {
+        max-width: 90%;
+        max-height: 90%;
+        object-fit: contain;
+      }
+
+      .close-fullscreen {
+        position: absolute;
+        top: 20px;
+        right: 20px;
+        font-size: 2rem;
+        color: white;
+        background: none;
+        border: none;
+        cursor: pointer;
+        opacity: 0.7;
+        transition: var(--transition);
+      }
+
+      .close-fullscreen:hover {
+        opacity: 1;
+        transform: scale(1.1);
+      }
+
+      /* Responsive adjustments */
+      @media (max-width: 768px) {
+        .container {
+          width: 95%;
+          padding: 1rem 0;
+        }
+
+        header .container {
+          flex-direction: column;
+          text-align: center;
+          gap: 0.5rem;
+        }
+
+        .image-title {
+          font-size: 1.5rem;
+        }
+
+        .action-buttons {
+          flex-direction: column;
+        }
+
+        .btn {
+          width: 100%;
+        }
+
+        .related-images {
+          grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Header -->
+    <header>
+      <div class="container">
+        <div class="header-title">
+          <i class="fas fa-images"></i> Image Details
+        </div>
+        <div class="breadcrumb">
+          <a href="{% url 'home' %}">Gallery</a>
+          <i class="fas fa-chevron-right"></i>
+          <span class="current">{{ image.title }}</span>
+        </div>
+      </div>
+    </header>
+
+    <div class="container">
+      <!-- Image Detail Section -->
+      <section class="detail-section">
+        <div class="image-container">
+          <div class="image-wrapper">
+            <img
+              src="{{ image.image.url }}"
+              alt="{{ image.title }}"
+              id="detail-image"
+            />
+          </div>
+          <div class="image-actions">
+            <button
+              class="action-btn"
+              id="fullscreen-btn"
+              title="View fullscreen"
+            >
+              <i class="fas fa-expand"></i>
+            </button>
+            <button class="action-btn" id="download-btn" title="Download image">
+              <i class="fas fa-download"></i>
+            </button>
+          </div>
+        </div>
+
+        <div class="image-info">
+          <h1 class="image-title">{{ image.title }}</h1>
+
+          <div class="image-meta">
+            <div class="meta-item">
+              <i class="fas fa-calendar-alt"></i>
+              <span>{{ image.uploaded_at|date:"F j, Y" }}</span>
+            </div>
+            <div class="meta-item">
+              <i class="fas fa-eye"></i>
+              <span>{{ image.views|default:"0" }} views</span>
+            </div>
+          </div>
+
+          <div class="image-description">
+            {{ image.description|linebreaks }}
+          </div>
+
+          <!-- Assuming you might have tags in the future -->
+          <div class="tag-container">
+            <span class="tag"><i class="fas fa-tag"></i> Gallery</span>
+            <span class="tag"><i class="fas fa-tag"></i> Image</span>
+          </div>
+
+          <div class="action-buttons">
+            <a href="{% url 'home' %}" class="btn btn-outline">
+              <i class="fas fa-arrow-left"></i> Back to Gallery
+            </a>
+            <form
+              method="POST"
+              action="{% url 'delete_image' image.id %}"
+              id="delete-form"
+            >
+              {% csrf_token %}
+              <button type="submit" class="btn btn-danger">
+                <i class="fas fa-trash-alt"></i> Delete Image
+              </button>
+            </form>
+          </div>
+        </div>
+      </section>
+
+      <!-- Related Images Section (if you want to add this feature) -->
+      {% if related_images %}
+      <section class="related-section">
+        <h2 class="section-title">
+          <i class="fas fa-images"></i> Related Images
+        </h2>
+        <div class="related-images">
+          {% for related in related_images %}
+          <a href="{% url 'image_detail' related.id %}" class="related-card">
+            <div class="related-img-container">
+              <img src="{{ related.image.url }}" alt="{{ related.title }}" />
+            </div>
+            <div class="related-card-body">
+              <h3 class="related-card-title">{{ related.title }}</h3>
+            </div>
+          </a>
+          {% endfor %}
+        </div>
+      </section>
+      {% endif %}
+    </div>
+
+    <!-- Footer -->
+    <footer>
+      <div class="container">
+        <p>© {% now "Y" %} Image Gallery. All rights reserved.</p>
+      </div>
+    </footer>
+
+    <!-- Fullscreen View Modal -->
+    <div class="fullscreen-view" id="fullscreen-view">
+      <img
+        src="{{ image.image.url }}"
+        alt="{{ image.title }}"
+        class="fullscreen-image"
+      />
+      <button class="close-fullscreen" id="close-fullscreen">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+    <script>
+      // === Fullscreen View Functionality ===
+      const fullscreenBtn = document.getElementById("fullscreen-btn");
+      const fullscreenView = document.getElementById("fullscreen-view");
+      const closeFullscreen = document.getElementById("close-fullscreen");
+
+      if (fullscreenBtn && fullscreenView && closeFullscreen) {
+        fullscreenBtn.addEventListener("click", () => {
+          fullscreenView.classList.add("active");
+          document.body.style.overflow = "hidden";
+        });
+
+        closeFullscreen.addEventListener("click", () => {
+          fullscreenView.classList.remove("active");
+          document.body.style.overflow = "";
+        });
+
+        fullscreenView.addEventListener("click", (e) => {
+          if (e.target === fullscreenView) {
+            fullscreenView.classList.remove("active");
+            document.body.style.overflow = "";
+          }
+        });
+
+        document.addEventListener("keydown", (e) => {
+          if (
+            e.key === "Escape" &&
+            fullscreenView.classList.contains("active")
+          ) {
+            fullscreenView.classList.remove("active");
+            document.body.style.overflow = "";
+          }
+        });
+      }
+
+      // === Download Image ===
+      const downloadBtn = document.getElementById("download-btn");
+      const detailImage = document.getElementById("detail-image");
+
+      if (downloadBtn && detailImage) {
+        downloadBtn.addEventListener("click", () => {
+          const link = document.createElement("a");
+          link.href = detailImage.src;
+          const title = detailImage.getAttribute("data-title") || "download";
+          link.download =
+            title.replace(/[^a-z0-9]/gi, "_").toLowerCase() + ".jpg";
+          document.body.appendChild(link);
+          link.click();
+          document.body.removeChild(link);
+          showNotification(
+            "Download Started",
+            "Your image is downloading now."
+          );
+        });
+      }
+
+      // === Custom Delete Confirmation Modal ===
+      const deleteForm = document.getElementById("delete-form");
+      if (deleteForm) {
+        deleteForm.addEventListener("submit", function (e) {
+          e.preventDefault();
+
+          const modal = document.createElement("div");
+          modal.style.position = "fixed";
+          modal.style.top = "0";
+          modal.style.left = "0";
+          modal.style.width = "100%";
+          modal.style.height = "100%";
+          modal.style.backgroundColor = "rgba(0, 0, 0, 0.85)";
+          modal.style.display = "flex";
+          modal.style.alignItems = "center";
+          modal.style.justifyContent = "center";
+          modal.style.zIndex = "10000";
+
+          const box = document.createElement("div");
+          box.style.background = "#1e1e1e";
+          box.style.padding = "2rem";
+          box.style.borderRadius = "10px";
+          box.style.boxShadow = "0 10px 30px rgba(0,0,0,0.5)";
+          box.style.textAlign = "center";
+          box.style.maxWidth = "400px";
+          box.style.width = "90%";
+          box.style.border = "1px solid #333";
+
+          box.innerHTML = `
+      <h3 style="margin-bottom: 1rem; color: #ff5252;">Delete Image?</h3>
+      <p style="margin-bottom: 1.5rem; color: #b3b3b3;">Are you sure you want to delete this image? This action cannot be undone.</p>
+      <div style="display: flex; justify-content: center; gap: 1rem;">
+        <button id="cancel-delete" style="padding: 0.5rem 1rem; background: #252525; color: #fff; border: 1px solid #444; border-radius: 5px; cursor: pointer; transition: all 0.3s ease;">Cancel</button>
+        <button id="confirm-delete" style="padding: 0.5rem 1rem; background: #ff1744; color: white; border: none; border-radius: 5px; cursor: pointer; transition: all 0.3s ease;">Delete</button>
+      </div>
+      `;
+
+          modal.appendChild(box);
+          document.body.appendChild(modal);
+
+          document
+            .getElementById("cancel-delete")
+            .addEventListener("click", () => {
+              document.body.removeChild(modal);
+            });
+
+          document
+            .getElementById("confirm-delete")
+            .addEventListener("click", () => {
+              showNotification(
+                "Image Deleted",
+                "The image has been permanently removed."
+              );
+              modal.remove();
+              deleteForm.submit(); // Now actually submit
+            });
+        });
+      }
+
+      // === Reusable Notification Function ===
+      function showNotification(title, message) {
+        const existing = document.getElementById("custom-notification");
+        if (existing) existing.remove();
+
+        const toast = document.createElement("div");
+        toast.id = "custom-notification";
+        toast.style.position = "fixed";
+        toast.style.bottom = "20px";
+        toast.style.right = "20px";
+        toast.style.background = "#252525";
+        toast.style.color = "#fff";
+        toast.style.padding = "1rem 1.5rem";
+        toast.style.borderRadius = "8px";
+        toast.style.boxShadow = "0 5px 20px rgba(0,0,0,0.5)";
+        toast.style.zIndex = "10001";
+        toast.style.opacity = "0";
+        toast.style.transition = "opacity 0.3s ease";
+        toast.style.border = "1px solid #333";
+
+        toast.innerHTML = `<strong style="color: #7c4dff">${title}</strong><br><small style="color: #b3b3b3">${message}</small>`;
+        document.body.appendChild(toast);
+
+        requestAnimationFrame(() => {
+          toast.style.opacity = "1";
+        });
+
+        setTimeout(() => {
+          toast.style.opacity = "0";
+          setTimeout(() => {
+            toast.remove();
+          }, 300);
+        }, 4000);
+      }
+    </script>
+  </body>
+</html>
